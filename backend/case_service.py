@@ -13,14 +13,17 @@ def get_all_cases(status_filter=None, priority_filter=None):
              JOIN investigators i ON c.lead_investigator_id = i.investigator_id
              LEFT JOIN evidence e ON c.case_id = e.case_id"""
     conds = []
+    params = []
     if status_filter and status_filter != "All":
-        conds.append(f"c.status='{status_filter}'")
+        conds.append("c.status=?")
+        params.append(status_filter)
     if priority_filter and priority_filter != "All":
-        conds.append(f"c.priority='{priority_filter}'")
+        conds.append("c.priority=?")
+        params.append(priority_filter)
     if conds:
         sql += " WHERE " + " AND ".join(conds)
     sql += " GROUP BY c.case_id ORDER BY c.opened_date DESC"
-    return run_query(sql)
+    return run_query(sql, tuple(params))
 
 
 def get_recent_cases(limit=5):
