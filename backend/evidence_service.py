@@ -58,12 +58,25 @@ def gen_evidence_number(case_number):
     return f"EV-{case_number}-{str(n).zfill(3)}"
 
 
-def gen_sha256(ev_num, case_num):
-    """Generate SHA-256 hash for evidence integrity."""
+def gen_sha256(ev_num, case_num, file_path=None):
+    """
+    Generate SHA-256 hash for evidence integrity.
+    If a file_path is provided, hash the actual file content
+    for stronger forensic integrity. Falls back to metadata-based
+    hash if no file is given.
+    """
+    if file_path:
+        try:
+            sha256 = hashlib.sha256()
+            with open(file_path, "rb") as f:
+                for chunk in iter(lambda: f.read(8192), b""):
+                    sha256.update(chunk)
+            return sha256.hexdigest()
+        except (FileNotFoundError, IOError):
+            pass
     return hashlib.sha256(
         f"{ev_num}-{case_num}-{datetime.now().isoformat()}".encode()
     ).hexdigest()
-
 
 def submit_evidence(case_id, ev_num, ev_type, description, collected_at,
                     inv_id, storage_loc, source_ip, ev_hash, collect_loc):
