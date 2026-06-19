@@ -52,13 +52,32 @@ def create_case(case_number, title, case_type, priority, investigator_id, org, j
 
 
 def update_case_status(case_id, new_status):
-    """Update case status and set closed_date if closing."""
-    execute_command("UPDATE cases SET status=? WHERE case_id=?", (new_status, case_id))
+    """
+    Update case status. If closing, validate that the case has
+    at least one piece of evidence and one final report submitted.
+    Returns (True, None) on success or (False, error_message) on failure.
+    """
     if new_status == "closed":
+        evidence_check = run_query(
+            "SELECT COUNT(*) FROM evidence WHERE case_id=?", (case_id,)
+        )
+        if not evidence_check or evidence_check[0][0] == 0:
+            return False, "Cannot close case: no evidence has been submitted."
+
+        report_check = run_query(
+            "SELECT COUNT(*) FROM case_reports WHERE case_id=? AND is_final=1",
+            (case_id,)
+        )
+        if not report_check or report_check[0][0] == 0:
+            return False, "Cannot close case: no final investigation report found."
+
         execute_command(
             "UPDATE cases SET closed_date=? WHERE case_id=?",
             (str(datetime.now().date()), case_id)
         )
+
+    execute_command("UPDATE cases SET status=? WHERE case_id=?", (new_status, case_id))
+    return True, None
 
 
 def get_cases_by_type():
