@@ -125,3 +125,13 @@ SQLite is used as the database (`dfis.db` — auto-created on first run). The da
 - [Issue #2 — Build Cases Module](https://github.com/a3ubakarr/Digital-Forensics-Investigation-System/issues/2)
 - [Issue #3 — Build Evidence Module](https://github.com/a3ubakarr/Digital-Forensics-Investigation-System/issues/3)
 - [Issue #4 — Build Custody and Reports Module](https://github.com/a3ubakarr/Digital-Forensics-Investigation-System/issues/4)
+
+---
+
+## Troubleshooting
+
+[#troubleshooting](#troubleshooting)
+
+- **ModuleNotFoundError** — Run `pip install -r requirements.txt` again after activating your virtual environment.
+- **Database not found** — The `dfis.db` file is auto-created on first run; make sure you run `python main.py` from the project root folder.
+- **Charts not displaying** — Ensure `matplotlib` is installed correctly: `pip install matplotlib --upgrade`.
